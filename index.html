@@ -1,0 +1,888 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chipless · Teen Patti Bet Manager</title>
+
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a1220;
+  --panel:#121e30;
+  --panel2:#0d1828;
+  --line:#293c56;
+  --text:#edf4ff;
+  --muted:#9bacc4;
+  --green:#4adeb2;
+  --gold:#f5c96b;
+  --red:#fb7185;
+  --blue:#8bb7ff;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:radial-gradient(ellipse at 50% -20%,#1d3854 0,transparent 55%),var(--bg);
+  color:var(--text);
+  font:15px/1.45 system-ui,Segoe UI,Arial,sans-serif;
+}
+
+.wrap{max-width:1100px;margin:auto;padding:24px 16px 45px}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+h1{font-size:clamp(24px,4vw,34px);margin:0}
+.sub,.muted{color:var(--muted)}
+.sub{font-size:13px;margin-top:4px}
+
+.chip{
+  font-size:12px;
+  color:#9af0d2;
+  border:1px solid #28634f;
+  background:#12352d;
+  border-radius:30px;
+  padding:6px 11px;
+  font-weight:700;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:16px;
+}
+
+.panel{
+  background:linear-gradient(150deg,#17263b,#111c2d);
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:17px;
+  box-shadow:0 12px 30px #0003;
+  margin-bottom:15px;
+}
+
+h2{font-size:17px;margin:0 0 13px}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-bottom:13px;
+}
+
+.stat{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:11px;
+}
+
+.stat small{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.stat strong{
+  display:block;
+  font-size:22px;
+  margin-top:3px;
+  font-variant-numeric:tabular-nums;
+}
+
+table{width:100%;border-collapse:collapse}
+
+th,td{
+  text-align:left;
+  padding:10px 8px;
+  border-bottom:1px solid #26374e;
+}
+
+th{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--muted);
+}
+
+td:last-child,th:last-child{text-align:right}
+
+.bal{color:var(--green);font-weight:800}
+.current{color:var(--gold);font-weight:800}
+.folded{color:#718098;text-decoration:line-through}
+
+.badge{
+  font-size:10px;
+  border-radius:30px;
+  padding:3px 7px;
+  background:#263a55;
+  color:#d6e5fa;
+}
+
+.badge.turn{background:#55431e;color:#ffe2a0}
+.badge.fold{background:#522a36;color:#ffc0c8}
+
+label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin:10px 0 5px;
+}
+
+input,select{
+  width:100%;
+  padding:11px 12px;
+  border-radius:10px;
+  background:#0a1524;
+  color:var(--text);
+  border:1px solid #354a66;
+  font:inherit;
+}
+
+input:focus,select:focus{
+  outline:2px solid #6599e855;
+  border-color:var(--blue);
+}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:10px 13px;
+  font:700 13px system-ui;
+  cursor:pointer;
+  background:#2a3d58;
+  color:var(--text);
+}
+
+button:hover{filter:brightness(1.12)}
+button:disabled{opacity:.4;cursor:not-allowed}
+
+.primary{background:var(--green);color:#06251c}
+.gold{background:var(--gold);color:#352605}
+.danger{background:#63303b;color:#ffe0e4}
+.outline{background:transparent;border:1px solid var(--line)}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.actions button{flex:1}
+
+.pot{
+  text-align:center;
+  background:linear-gradient(135deg,#16463d,#102d35);
+  border:1px solid #286550;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:13px;
+}
+
+.pot small{color:#a9e9d5}
+
+.pot strong{
+  display:block;
+  font-size:34px;
+  color:#a1f3d8;
+}
+
+.turnbox{
+  padding:11px;
+  border-radius:10px;
+  background:#172b40;
+  border:1px solid #2d4563;
+  margin:10px 0;
+  color:#d7e7ff;
+}
+
+.hidden{display:none!important}
+
+.history{display:grid;gap:8px}
+
+.event{
+  background:#0c1727;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:13px;
+}
+
+.event b{color:var(--gold)}
+.small{font-size:12px}
+
+.help{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+.modalback{
+  position:fixed;
+  inset:0;
+  background:#0009;
+  display:grid;
+  place-items:center;
+  padding:16px;
+  z-index:5;
+}
+
+.modal{
+  width:min(520px,100%);
+  background:#142238;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:19px;
+  max-height:90vh;
+  overflow:auto;
+}
+
+.modal h2{margin-bottom:8px}
+
+.playerrow{
+  display:grid;
+  grid-template-columns:1fr 120px;
+  gap:8px;
+  margin:8px 0;
+}
+
+.foot{
+  text-align:center;
+  color:#6f829e;
+  font-size:11px;
+  margin-top:8px;
+}
+
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  .panel{padding:14px}
+}
+
+@media(max-width:420px){
+  .stats strong{font-size:18px}
+  .playerrow{grid-template-columns:1fr 95px}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header class="header">
+  <div>
+    <h1>♠ Chipless · Teen Patti</h1>
+    <div class="sub">Browser version of your bets_manager.py · virtual chips only</div>
+  </div>
+  <span class="chip">● OFFLINE · SAVES ON THIS DEVICE</span>
+</header>
+
+<div class="layout">
+
+<main>
+
+<section class="panel">
+  <h2>Player balances</h2>
+
+  <div class="stats">
+    <div class="stat">
+      <small>PLAYERS</small>
+      <strong id="playerCount">0</strong>
+    </div>
+
+    <div class="stat">
+      <small>TOTAL BALANCE</small>
+      <strong id="totalBalance">0</strong>
+    </div>
+
+    <div class="stat">
+      <small>ROUND</small>
+      <strong id="roundCount">0</strong>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Player</th>
+          <th>Status</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody id="playerRows"></tbody>
+    </table>
+  </div>
+
+  <div class="actions">
+    <button class="outline" id="manageBtn">Add / edit players</button>
+    <button class="danger" id="clearBtn">Clear All Data</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Round history</h2>
+  <div id="history" class="history">
+    <div class="muted">No completed rounds yet.</div>
+  </div>
+</section>
+
+</main>
+
+<aside>
+
+<section class="panel">
+  <h2 id="roundTitle">Start a new round</h2>
+
+  <div class="pot">
+    <small id="potLabel">CURRENT POT</small>
+    <strong id="pot">0</strong>
+    <small>virtual chips</small>
+  </div>
+
+  <div id="setup">
+    <label>Player who starts this round</label>
+    <select id="starter"></select>
+    <button class="primary" id="startBtn" style="width:100%;margin-top:12px">
+      Start round
+    </button>
+  </div>
+
+  <div id="betting" class="hidden">
+    <div class="turnbox" id="turnInfo"></div>
+
+    <label>Enter this player's bet / contribution</label>
+    <input id="betAmount" type="number" min="0" step="1" placeholder="Enter chips (e.g. 10)">
+
+    <div class="help">
+      Enter 0 to Fold. Enter -1 to End Betting.
+      A positive number is deducted from the player's balance and added to the pot.
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="submitBet">Submit bet</button>
+      <button class="danger" id="foldBtn">Fold (0)</button>
+    </div>
+
+    <button class="gold" id="endBtn" style="width:100%;margin-top:9px">
+      End betting (-1)
+    </button>
+  </div>
+
+  <div id="winnerBox" class="hidden">
+    <label>Player number who won this round</label>
+    <select id="winner"></select>
+    <button class="primary" id="awardBtn" style="width:100%;margin-top:12px">
+      Award pot & save balances
+    </button>
+  </div>
+
+  <div id="status" class="turnbox">
+    Start a round. Your CMD calculator's betting order and fold behaviour are retained.
+  </div>
+</section>
+
+<section class="panel">
+  <h2>How this matches CMD</h2>
+  <div class="help">
+    • Same clockwise player order, starting from the selected player.<br>
+    • <b>0 = Fold</b>, and folded players are skipped.<br>
+    • <b>-1 = End Betting</b>, then select the winning player number.<br>
+    • Every positive entry is a separate contribution, not a raise-to amount.<br>
+    • Winner receives the full pot. Balances are saved automatically in this browser.
+  </div>
+</section>
+
+</aside>
+</div>
+
+<div class="foot">
+  No real money · No account · No internet needed after saving this HTML file
+</div>
+
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+const KEY='chipless_cmd_html_v1';
+const $=id=>document.getElementById(id);
+
+let state=load();
+
+function load(){
+  try{
+    return JSON.parse(localStorage.getItem(KEY));
+  }catch(e){
+    return null;
+  }
+}
+
+function persist(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+  render();
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g,c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
+function defaultState(){
+  return {
+    players:[],
+    roundNo:0,
+    round:null,
+    history:[]
+  };
+}
+
+if(!state)state=defaultState();
+
+function currentPlayer(){
+  return state.players.find(p=>p.id===state.round.currentId);
+}
+
+function nextPlayerId(from){
+  let i=state.players.findIndex(p=>p.id===from);
+
+  for(let n=1;n<=state.players.length;n++){
+    let p=state.players[(i+n)%state.players.length];
+
+    if(!state.round.folded[p.id])return p.id;
+  }
+
+  return null;
+}
+
+function fillSelect(el,players){
+  el.innerHTML=players.map(p=>
+    `<option value="${p.id}">${p.id} · ${esc(p.name)}</option>`
+  ).join('');
+}
+
+function render(){
+
+  $('playerCount').textContent=state.players.length;
+
+  $('totalBalance').textContent=
+    state.players.reduce((s,p)=>s+p.balance,0);
+
+  $('roundCount').textContent=state.roundNo;
+
+  const r=state.round;
+
+  $('pot').textContent=r?r.pot:0;
+
+  $('playerRows').innerHTML=state.players.map(p=>{
+    let isFold=r&&r.folded[p.id];
+    let turn=r&&r.status==='betting'&&r.currentId===p.id;
+
+    return `<tr>
+      <td>${p.id}</td>
+      <td><b class="${isFold?'folded':''}">${esc(p.name)}</b></td>
+      <td>
+        ${isFold
+          ?'<span class="badge fold">FOLDED</span>'
+          :turn
+            ?'<span class="badge turn">TO ACT</span>'
+            :'<span class="badge">READY</span>'
+        }
+      </td>
+      <td class="bal">${p.balance}</td>
+    </tr>`;
+  }).join('');
+
+  $('setup').classList.toggle('hidden',!!r);
+
+  $('betting').classList.toggle(
+    'hidden',!r||r.status!=='betting'
+  );
+
+  $('winnerBox').classList.toggle(
+    'hidden',!r||r.status!=='winner'
+  );
+
+  if(!r){
+    $('winner').disabled=false;
+    $('roundTitle').textContent='Start a new round';
+
+    $('status').textContent=
+      state.players.length
+      ?'Select who starts.'
+      :'Add your players to begin.';
+
+    fillSelect($('starter'),state.players);
+  }
+
+  else if(r.status==='betting'){
+    $('roundTitle').textContent=
+      `Round ${state.roundNo} · Betting`;
+
+    let p=currentPlayer();
+
+    $('turnInfo').innerHTML=
+      `<b>${esc(p.name)}</b> (Player ${p.id}) is next · Balance: <b>${p.balance}</b> chips`;
+
+    $('status').textContent=
+      `Bets started from ${r.startName}. Current pot: ${r.pot} chips.`;
+  }
+
+  else{
+    $('roundTitle').textContent=
+      `Round ${state.roundNo} · Select winner`;
+
+    $('status').textContent=
+      `Betting ended. Select the player number who won the pot of ${r.pot} chips.`;
+
+    const eligibleWinners = state.players.filter(p=>!r.folded[p.id]);
+
+    // Older saved rounds may already have every player marked as folded.
+    // In that recovery case, show all players so the round can still be settled.
+    fillSelect(
+      $('winner'),
+      eligibleWinners.length ? eligibleWinners : state.players
+    );
+
+    if(r.autoWinnerId){
+      $('winner').value=String(r.autoWinnerId);
+      $('winner').disabled=true;
+    }else{
+      $('winner').disabled=false;
+    }
+  }
+
+  $('history').innerHTML=state.history.length
+    ?state.history.slice().reverse().map(h=>
+      `<div class="event">
+        Round <b>${h.roundNo}</b> ·
+        <b>${esc(h.winner)}</b> won
+        <b>${h.pot} chips</b>
+        <div class="muted small">${esc(h.summary)}</div>
+      </div>`
+    ).join('')
+    :'<div class="muted">No completed rounds yet.</div>';
+
+  $('manageBtn').disabled=!!r;
+}
+
+function addContribution(amount){
+
+  let r=state.round;
+  let p=currentPlayer();
+
+  if(amount>p.balance){
+    alert(`${p.name} only has ${p.balance} chips.`);
+    return;
+  }
+
+  p.balance-=amount;
+
+  r.contrib[p.id]=(r.contrib[p.id]||0)+amount;
+  r.pot+=amount;
+
+  let next=nextPlayerId(p.id);
+
+  if(next===null){
+    r.status='winner';
+  }else{
+    r.currentId=next;
+  }
+
+  persist();
+  $('betAmount').value='';
+}
+
+function foldCurrent(){
+
+  let p=currentPlayer();
+
+  if(!p)return;
+
+  // A player cannot fold if they are the last active player.
+  const activeBeforeFold = state.players.filter(
+    x => !state.round.folded[x.id]
+  );
+
+  if(activeBeforeFold.length <= 1){
+    state.round.status='winner';
+    persist();
+    alert(`${p.name} is the last active player and wins the pot.`);
+    return;
+  }
+
+  state.round.folded[p.id]=true;
+
+  const activeAfterFold = state.players.filter(
+    x => !state.round.folded[x.id]
+  );
+
+  // The last remaining player wins automatically.
+  if(activeAfterFold.length === 1){
+    state.round.status='winner';
+    state.round.autoWinnerId=activeAfterFold[0].id;
+  }else{
+    let next=nextPlayerId(p.id);
+    if(next===null){
+      state.round.status='winner';
+    }else{
+      state.round.currentId=next;
+    }
+  }
+
+  persist();
+}
+
+$('startBtn').onclick=()=>{
+
+  if(state.players.length<2){
+    return alert('Add at least two players.');
+  }
+
+  let id=Number($('starter').value);
+
+  let p=state.players.find(x=>x.id===id);
+
+  state.roundNo++;
+
+  state.round={
+    status:'betting',
+    pot:0,
+    folded:{},
+    contrib:{},
+    currentId:id,
+    startId:id,
+    startName:p.name
+  };
+
+  state.players.forEach(x=>{
+    state.round.contrib[x.id]=0;
+  });
+
+  persist();
+};
+
+$('submitBet').onclick=()=>{
+
+  let raw=$('betAmount').value;
+
+  if(raw===''){
+    return alert('Enter a bet, 0 to fold, or -1 to end betting.');
+  }
+
+  let n=Number(raw);
+
+  if(!Number.isInteger(n)){
+    return alert('Enter a whole number.');
+  }
+
+  if(n===-1){
+    state.round.status='winner';
+    persist();
+    return;
+  }
+
+  if(n===0){
+    foldCurrent();
+    return;
+  }
+
+  if(n<0){
+    return alert('Only -1 is allowed as a command.');
+  }
+
+  addContribution(n);
+};
+
+$('foldBtn').onclick=()=>foldCurrent();
+
+$('endBtn').onclick=()=>{
+  state.round.status='winner';
+  persist();
+};
+
+$('awardBtn').onclick=()=>{
+
+  let r=state.round;
+
+  let id=Number($('winner').value);
+
+  let p=state.players.find(x=>x.id===id);
+
+  if(!p)return alert('Choose a winner.');
+
+  const eligibleWinners = state.players.filter(x=>!r.folded[x.id]);
+  if(!r.autoWinnerId && eligibleWinners.length && r.folded[id]){
+    return alert('A folded player cannot win this round.');
+  }
+
+  p.balance+=r.pot;
+
+  let summary=state.players.map(x=>
+    `${x.name}: ${r.contrib[x.id]||0}`
+  ).join(' · ');
+
+  state.history.push({
+    roundNo:state.roundNo,
+    winner:p.name,
+    pot:r.pot,
+    summary
+  });
+
+  state.round=null;
+
+  persist();
+
+  showAddPrompt();
+};
+
+function showAddPrompt(){
+
+  if(confirm('Round saved! Do you want to add a new player?')){
+    openManage(true);
+  }
+}
+
+
+function openManage(addingOnly=false){
+
+  let rows=state.players.map(p=>
+    `<div class="playerrow">
+      <input data-name="${p.id}" value="${esc(p.name)}" aria-label="Player name">
+      <input data-balance="${p.id}" type="number" min="0" value="${p.balance}" aria-label="Balance">
+    </div>`
+  ).join('');
+
+  $('modalRoot').innerHTML=`
+    <div class="modalback">
+      <div class="modal">
+        <h2>${addingOnly?'Add new player':'Manage players'}</h2>
+
+        <div class="help">
+          Edit names and balances. Add multiple players using the Add Player button.
+        </div>
+
+        <div id="editRows">${rows}</div>
+
+        <div id="newPlayerRows"></div>
+
+        <div class="actions">
+          <button class="outline" id="addPlayerRow">+ Add Player</button>
+        </div>
+
+        <div class="actions">
+          <button class="outline" id="cancelModal">Cancel</button>
+          <button class="primary" id="saveModal">Save players</button>
+        </div>
+      </div>
+    </div>`;
+
+  function addPlayerRow(){
+    let div=document.createElement('div');
+    div.className='playerrow';
+
+    div.innerHTML=`
+      <input class="new-player-name" placeholder="New player name">
+      <input class="new-player-balance" type="number" min="0" placeholder="Starting chips">
+    `;
+
+    $('newPlayerRows').appendChild(div);
+  }
+
+  $('addPlayerRow').onclick=addPlayerRow;
+
+  addPlayerRow();
+
+  $('cancelModal').onclick=()=>{
+    $('modalRoot').innerHTML='';
+  };
+
+  $('saveModal').onclick=()=>{
+
+    let names=[...document.querySelectorAll('[data-name]')];
+    let balances=[...document.querySelectorAll('[data-balance]')];
+
+    names.forEach(inp=>{
+      let p=state.players.find(x=>x.id===Number(inp.dataset.name));
+
+      if(p){
+        if(inp.value.trim())p.name=inp.value.trim();
+
+        let b=balances.find(x=>x.dataset.balance===inp.dataset.name);
+
+        if(b && Number.isInteger(Number(b.value)) && Number(b.value)>=0){
+          p.balance=Number(b.value);
+        }
+      }
+    });
+
+    let newNames=[...document.querySelectorAll('.new-player-name')];
+    let newBalances=[...document.querySelectorAll('.new-player-balance')];
+
+    for(let i=0;i<newNames.length;i++){
+
+      let name=newNames[i].value.trim();
+      let balance=newBalances[i].value;
+
+      if(!name && balance==='')continue;
+
+      if(!name || balance==='' || !Number.isInteger(Number(balance)) || Number(balance)<0){
+        return alert('Enter a valid player name and starting chip balance.');
+      }
+
+      state.players.push({
+        id:Math.max(0,...state.players.map(p=>p.id))+1,
+        name:name,
+        balance:Number(balance)
+      });
+    }
+
+    $('modalRoot').innerHTML='';
+    persist();
+  };
+}
+
+$('manageBtn').onclick=()=>openManage();
+
+/* CLEAR ALL SAVED DATA */
+$('clearBtn').onclick=()=>{
+
+  if(!confirm(
+    'Are you sure? This will permanently delete all player data, balances, current round and history from this browser.'
+  )){
+    return;
+  }
+
+  localStorage.removeItem(KEY);
+
+  state=defaultState();
+
+  render();
+
+  openManage();
+};
+
+if(state.players.length===0){
+  openManage();
+}
+
+render();
+</script>
+
+</body>
+</html>
